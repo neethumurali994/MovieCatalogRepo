@@ -3,6 +3,8 @@ package com.movie.moviecatalog.controller;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,12 +26,18 @@ public class ReviewController {
 
 	/* add reviews and rating */
 	@PostMapping("/movie/{movieid}/reviews")
-	public Optional<ReviewModel> createComment(@PathVariable(value = "movieid") int movieid,
+	public ReviewModel createComment(@PathVariable(value = "movieid") int movieid,
 			@RequestBody ReviewModel comment) {
-		return movieService.findMovieById(movieid).map(movie -> {
-			comment.setMovie(movie);
-			return reviewService.addComments(comment);
-		});
+		try {
+			return movieService.findMovieById(movieid).map(movie -> {
+				comment.setMovie(movie);
+				return reviewService.addComments(comment);
+			}).orElseThrow(()-> new Exception("movieid " + movieid + " not found"));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;		
 	}
 
 }
